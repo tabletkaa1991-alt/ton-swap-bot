@@ -23,7 +23,7 @@ services:
       - key: MIN_USD
         value: "1"
       - key: MAX_USD
-        value: "10"
+        value: "5000"
       - key: SERVICE_WALLET
         value: UQDPWo2iOhyhqm1DcKLsZWA2-Y5oOhV7h6N2zLNkgw-ZEdtr
       # WEBAPP_URL, PORT и адрес мини-приложения Render подставляет сам:

@@ -119,7 +119,7 @@ def load_config() -> Config:
         raise ConfigError("FEE_PERCENT должен быть в диапазоне 0–10")
 
     min_usd = _decimal("MIN_USD", "1")
-    max_usd = _decimal("MAX_USD", "10")
+    max_usd = _decimal("MAX_USD", "5000")
     if min_usd <= 0:
         raise ConfigError("MIN_USD должен быть больше нуля")
     if max_usd <= min_usd:

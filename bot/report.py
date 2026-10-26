@@ -76,7 +76,7 @@ def _success_text(details: dict) -> str:
         sent, got = f"{_format_number(amount, 2)} USDT", f"≈{_format_number(receive, 4)} TON"
 
     return (
-        "✅ <b>Обмен завершился успешно</b>\n\n"
+        "✅ <b>Обмен прошёл успешно</b>\n\n"
         f"Отправлено: {sent}\n"
         f"К получению: {got}\n\n"
         "Перевод уже ушёл в сеть TON. USDT поступят на ваш кошелёк в течение минуты, "

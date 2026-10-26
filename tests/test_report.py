@@ -58,7 +58,8 @@ class ValidateInitDataTest(unittest.TestCase):
 class SuccessTextTest(unittest.TestCase):
     def test_ton_to_usdt(self):
         text = _success_text({"direction": "ton-usdt", "amount": 1, "receive": 1.2638})
-        self.assertIn("Обмен завершился успешно", text)
+        self.assertIn("Обмен прошёл успешно", text)
+        self.assertIn("✅", text)
         self.assertIn("1 TON", text)
         self.assertIn("1.26 USDT", text)
 

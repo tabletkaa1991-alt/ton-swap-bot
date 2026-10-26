@@ -117,7 +117,7 @@ Free-сервис Render засыпает после ~15 минут без вх�
 2. **Create Service → GitHub** → репозиторий → builder **Dockerfile**,
    путь `deploy/Dockerfile`, порт **8080** (или `PORT` из окружения), инстанс **Free**.
 3. Environment variables: `BOT_TOKEN`, `TONAPI_KEY`, `NETWORK=mainnet`, `FEE_PERCENT=2.5`,
-   `MIN_USD=1`, `MAX_USD=10`, `SERVICE_WALLET=...`.
+   `MIN_USD=1`, `MAX_USD=5000`, `SERVICE_WALLET=...`.
 4. Deploy. Koyeb выдаст `https://имя-приложения.koyeb.app` — бот определит адрес
    через `KOYEB_PUBLIC_DOMAIN` сам.
 5. Free-инстанс засыпает после часа без запросов — поставьте пинг `/api/health`

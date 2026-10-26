@@ -1,0 +1,16 @@
+# В образ попадают только bot/ и webapp/ (см. deploy/Dockerfile), но контекст
+# сборки лучше держать маленьким: иначе Render/Docker шлют 55 МБ cloudflared.exe
+# и локальные логи на каждый деплой.
+.env
+.env.*
+.run/
+.tmp/
+vendor/
+node_modules/
+tools/bin/
+tests/
+__pycache__/
+*.pyc
+*.log
+.git/
+*.md
