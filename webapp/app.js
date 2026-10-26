@@ -3,11 +3,19 @@
 // Кошелёк подключается через TON Connect, обмен подписывает пользователь.
 // Своп — в swap.js (реализация swap-stonfi.js), см. README «Этап 2».
 
-import { FEE_PERCENT, MAX_USD, MIN_USD } from "./config.js";
+import { FEE_PERCENT, MAX_USD, MIN_USD } from "./config.js?v=20261026";
+// ?v= — обход кеша Telegram WebView: после деплоя старый config.js может жить
+// в кеше до часа. При изменении статики версию в этом импорте и в index.html
+// (src app.js) нужно поднять.
 
 const TONAPI_RATES = "https://tonapi.io/v2/rates?tokens=ton&currencies=usd";
 const MANIFEST_URL = new URL("./tonconnect-manifest.json", location.href).href;
 let BOT_URL = "https://t.me/fastobmennik_bot"; // перезаписывается из /api/config ниже
+
+// Лимиты — с сервера (/api/config): config.js остаётся фолбэком, если сервер
+// не ответил. Так лимит меняется в Render без пересборки статики и не залипает
+// в кеше мини-приложения.
+const LIMITS = { min: MIN_USD, max: MAX_USD, fee: FEE_PERCENT };
 
 const ui = {
   direction: document.getElementById("direction"),
@@ -59,6 +67,10 @@ async function loadPublicConfig() {
     if (!response.ok) return;
     const data = await response.json();
     if (data.botUrl) BOT_URL = data.botUrl;
+    if (Number.isFinite(data.feePercent)) LIMITS.fee = data.feePercent;
+    if (Number.isFinite(data.minUsd)) LIMITS.min = data.minUsd;
+    if (Number.isFinite(data.maxUsd)) LIMITS.max = data.maxUsd;
+    render();
   } catch (error) {
     console.warn("config failed:", error);
   }
@@ -124,8 +136,8 @@ function limitError() {
   const usd = amountUsd();
   if (usd === null) return "Курс ещё не получен.";
   if (usd <= 0) return "Введите сумму больше нуля.";
-  if (usd < MIN_USD) return `Минимальная сумма сделки — ${MIN_USD} $ (сейчас ${formatMoney(usd)} $).`;
-  if (usd > MAX_USD) return `Максимальная сумма сделки — ${MAX_USD} $ (сейчас ${formatMoney(usd)} $).`;
+  if (usd < LIMITS.min) return `Минимальная сумма сделки — ${LIMITS.min} $ (сейчас ${formatMoney(usd)} $).`;
+  if (usd > LIMITS.max) return `Максимальная сумма сделки — ${LIMITS.max} $ (сейчас ${formatMoney(usd)} $).`;
   return null;
 }
 
@@ -151,9 +163,9 @@ function render() {
   const toUsdt = ui.direction.value === "ton-usdt";
   // Своп отправляет ровно введённую сумму, поэтому на выходе — полная котировка.
   // Комиссия сервиса списывается отдельным переводом в TON, сверху.
-  const fee = toUsdt ? (amount * FEE_PERCENT) / 100 : 0;
+  const fee = toUsdt ? (amount * LIMITS.fee) / 100 : 0;
   const gasTon = 0.31; // форвард-газ свопа; часть вернётся как сдача
-  ui.fee.textContent = toUsdt ? `${formatMoney(fee, 4)} TON (${FEE_PERCENT}%)` : `${FEE_PERCENT}% от суммы`;
+  ui.fee.textContent = toUsdt ? `${formatMoney(fee, 4)} TON (${LIMITS.fee}%)` : `${LIMITS.fee}% от суммы`;
 
   if (state.rate === null) {
     ui.receive.textContent = "—";
@@ -179,7 +191,7 @@ function render() {
     const note = toUsdt
       ? " Часть газа вернётся на кошелёк как сдача."
       : " Газ сети списывается в TON сверх суммы.";
-    setStatus(`Лимит сделки: ${MIN_USD}–${MAX_USD} $.${note}`);
+    setStatus(`Лимит сделки: ${LIMITS.min}–${LIMITS.max} $.${note}`);
   }
 }
 
@@ -251,9 +263,9 @@ ui.swap.addEventListener("click", async () => {
       direction: ui.direction.value,
       amount: amountUnit(),
       usdValue: amountUsd(),
-      feePercent: FEE_PERCENT,
-      minUsd: MIN_USD,
-      maxUsd: MAX_USD,
+      feePercent: LIMITS.fee,
+      minUsd: LIMITS.min,
+      maxUsd: LIMITS.max,
       wallet: state.wallet,
       tonConnectUI: window.__tonConnectUI,
     });
