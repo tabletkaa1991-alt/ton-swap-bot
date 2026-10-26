@@ -1,0 +1,30 @@
+# Render Blueprint: бесплатный Docker-сервис без карты.
+# Как задеплоить: DEPLOY-FREE.md, шаг «Render».
+# Один контейнер отдаёт мини-приложение, /api/* и бота (long polling).
+services:
+  - type: web
+    name: ton-swap-bot
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      # Секреты вводятся в панели Render (sync:false), в git их нет.
+      - key: BOT_TOKEN
+        sync: false
+      - key: TONAPI_KEY
+        sync: false
+      - key: NETWORK
+        value: mainnet
+      - key: FEE_PERCENT
+        value: "2.5"
+      - key: MIN_USD
+        value: "1"
+      - key: MAX_USD
+        value: "10"
+      - key: SERVICE_WALLET
+        value: UQDPWo2iOhyhqm1DcKLsZWA2-Y5oOhV7h6N2zLNkgw-ZEdtr
+      # WEBAPP_URL, PORT и адрес мини-приложения Render подставляет сам:
+      # бот берёт RENDER_EXTERNAL_URL и собирает кнопку меню и манифест.

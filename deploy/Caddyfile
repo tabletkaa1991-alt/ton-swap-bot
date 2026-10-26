@@ -1,0 +1,13 @@
+# Замените swap.example.com на свой домен (A-запись на IP сервера).
+# Caddy сам получит сертификат Let's Encrypt. Статику, /api/* и вебхук
+# отдаёт контейнер bot — Caddy только терминирует TLS и проксирует.
+swap.example.com {
+	encode zstd gzip
+	reverse_proxy bot:8080
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
