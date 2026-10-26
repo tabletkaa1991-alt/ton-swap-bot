@@ -40,8 +40,10 @@ _MIME = {
     ".txt": "text/plain; charset=utf-8",
 }
 
-# Эти файлы меняются от площадки к площадке, кешировать их нельзя.
-_NO_STORE = {"index.html", "tonconnect-manifest.json"}
+# JS/HTML меняются при каждом деплое, а Telegram WebView кеширует их надолго:
+# со старым config.js мини-приложение ещё час живёт со старыми лимитами.
+# Кешируем только картинки — они не меняются.
+_CACHEABLE_SUFFIXES = {".gif", ".png", ".webp", ".svg", ".ico"}
 
 
 def _content_type(path: Path) -> str:
@@ -149,8 +151,9 @@ def create_app(
         if target.name == "tonconnect-manifest.json":
             return web.json_response(_manifest(public_base), headers={"cache-control": "no-store"})
 
+        cache_control = "public, max-age=3600" if target.suffix.lower() in _CACHEABLE_SUFFIXES else "no-store"
         headers = {
-            "cache-control": "no-store" if target.name in _NO_STORE else "public, max-age=3600",
+            "cache-control": cache_control,
             "x-content-type-options": "nosniff",
         }
         return web.FileResponse(target, headers=headers)
